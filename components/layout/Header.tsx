@@ -2,8 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
-import { Phone, Menu, X } from "lucide-react";
+import { Phone, Menu, X, Truck } from "lucide-react";
 import { PHONE_NUMBER, PHONE_DISPLAY } from "@/data/constants";
 
 export default function Header() {
@@ -21,15 +20,16 @@ export default function Header() {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-20 md:h-24">
           {/* Logo */}
-          <Link href="/" className="flex items-center">
-            <Image
-              src="/images/logo.png"
-              alt="Rodriguez Towing LLC"
-              width={200}
-              height={100}
-              className="h-16 md:h-20 w-auto"
-              priority
-            />
+          <Link href="/" className="flex items-center gap-2">
+            <Truck className="w-8 h-8 md:w-10 md:h-10 text-brand-orange" />
+            <div className="flex flex-col">
+              <span className="text-white font-bold text-lg md:text-xl leading-tight">
+                Rodriguez
+              </span>
+              <span className="text-brand-orange font-bold text-sm md:text-base leading-tight">
+                TOWING
+              </span>
+            </div>
           </Link>
 
           {/* Desktop Navigation */}
