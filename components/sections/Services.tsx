@@ -1,12 +1,12 @@
-import { Truck, Container, Wrench, Warehouse, ArrowRight } from "lucide-react";
+import { Car, Truck, Fuel, ParkingSquare, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { SERVICES } from "@/data/constants";
 
 const iconMap = {
+  Car: Car,
   Truck: Truck,
-  Container: Container,
-  Wrench: Wrench,
-  Warehouse: Warehouse,
+  Fuel: Fuel,
+  ParkingSquare: ParkingSquare,
 } as const;
 
 export default function Services() {

@@ -6,25 +6,25 @@ export const SERVICES = [
     id: "light-duty",
     name: "Light Duty Towing",
     description: "Cars, SUVs, and small trucks up to 10,000 lbs",
-    icon: "Truck",
+    icon: "Car",
   },
   {
     id: "heavy-duty",
     name: "Heavy Duty Towing",
     description: "Semi-trucks, buses, RVs, and commercial vehicles",
-    icon: "Container",
+    icon: "Truck",
   },
   {
     id: "roadside-assistance",
     name: "Roadside Assistance",
     description: "Jump starts, tire changes, fuel delivery, and lockouts",
-    icon: "Wrench",
+    icon: "Fuel",
   },
   {
     id: "impound",
     name: "Impound Services",
     description: "Private property towing and vehicle storage",
-    icon: "Warehouse",
+    icon: "ParkingSquare",
   },
 ] as const;
 
