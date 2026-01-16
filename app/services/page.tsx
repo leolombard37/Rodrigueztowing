@@ -1,12 +1,12 @@
-import { Truck, Container, Wrench, Warehouse, Phone, CheckCircle } from "lucide-react";
+import { Car, Truck, Fuel, ParkingSquare, Phone, CheckCircle } from "lucide-react";
 import Link from "next/link";
 import { SERVICES, PHONE_NUMBER, PHONE_DISPLAY } from "@/data/constants";
 
 const iconMap = {
+  Car: Car,
   Truck: Truck,
-  Container: Container,
-  Wrench: Wrench,
-  Warehouse: Warehouse,
+  Fuel: Fuel,
+  ParkingSquare: ParkingSquare,
 } as const;
 
 const serviceDetails = {
