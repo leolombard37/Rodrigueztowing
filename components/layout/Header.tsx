@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Phone, Menu, X, Truck } from "lucide-react";
-import { PHONE_NUMBER, PHONE_DISPLAY } from "@/data/constants";
+import { CTA_PHONE_NUMBER, CTA_PHONE_DISPLAY } from "@/data/constants";
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -47,11 +47,11 @@ export default function Header() {
 
           {/* Call Now Button - Always Visible */}
           <a
-            href={`tel:${PHONE_NUMBER}`}
+            href={`tel:${CTA_PHONE_NUMBER}`}
             className="flex items-center gap-2 bg-brand-orange hover:bg-safety-orange text-black font-bold py-3 px-4 md:px-6 rounded-lg transition-colors shadow-lg"
           >
             <Phone className="w-5 h-5" />
-            <span className="hidden sm:inline">{PHONE_DISPLAY}</span>
+            <span className="hidden sm:inline">{CTA_PHONE_DISPLAY}</span>
             <span className="sm:hidden">CALL NOW</span>
           </a>
 

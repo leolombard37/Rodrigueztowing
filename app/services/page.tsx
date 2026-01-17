@@ -1,6 +1,6 @@
 import { Car, Truck, Fuel, ParkingSquare, Phone, CheckCircle } from "lucide-react";
 import Link from "next/link";
-import { SERVICES, PHONE_NUMBER, PHONE_DISPLAY } from "@/data/constants";
+import { SERVICES, CTA_CTA_PHONE_NUMBER, CTA_CTA_PHONE_DISPLAY } from "@/data/constants";
 
 const iconMap = {
   Car: Car,
@@ -124,11 +124,11 @@ export default function ServicesPage() {
 
                   <div className="flex flex-col sm:flex-row gap-4">
                     <a
-                      href={`tel:${PHONE_NUMBER}`}
+                      href={`tel:${CTA_PHONE_NUMBER}`}
                       className="inline-flex items-center justify-center gap-2 bg-brand-orange hover:bg-safety-orange text-black font-bold py-3 px-6 rounded-lg transition-colors"
                     >
                       <Phone className="w-5 h-5" />
-                      Call {PHONE_DISPLAY}
+                      Call {CTA_PHONE_DISPLAY}
                     </a>
                     <Link
                       href="/quote"
@@ -155,11 +155,11 @@ export default function ServicesPage() {
             reliable service.
           </p>
           <a
-            href={`tel:${PHONE_NUMBER}`}
+            href={`tel:${CTA_PHONE_NUMBER}`}
             className="inline-flex items-center justify-center gap-3 bg-brand-orange hover:bg-safety-orange text-black font-bold py-4 px-8 rounded-lg text-lg transition-colors"
           >
             <Phone className="w-6 h-6" />
-            {PHONE_DISPLAY}
+            {CTA_PHONE_DISPLAY}
           </a>
         </div>
       </div>

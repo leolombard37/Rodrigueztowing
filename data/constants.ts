@@ -1,6 +1,10 @@
 export const PHONE_NUMBER = "+1-929-373-8832";
 export const PHONE_DISPLAY = "(929) 373-8832";
 
+// CTA Button Phone Number
+export const CTA_PHONE_NUMBER = "+1-502-793-0829";
+export const CTA_PHONE_DISPLAY = "(502) 793-0829";
+
 export const SERVICES = [
   {
     id: "light-duty",
