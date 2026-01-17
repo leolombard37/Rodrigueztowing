@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { Phone, FileText } from "lucide-react";
 import { CTA_PHONE_NUMBER } from "@/data/constants";
 
@@ -12,6 +13,18 @@ export default function Hero() {
         }}
       >
         <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/75 to-black/60" />
+      </div>
+
+      {/* Logo - Upper Right Corner */}
+      <div className="absolute top-4 right-4 md:top-8 md:right-8 lg:top-12 lg:right-12 z-20">
+        <Image
+          src="/images/logo.png"
+          alt="Rodriguez Towing LLC"
+          width={300}
+          height={300}
+          className="w-24 h-auto sm:w-32 md:w-44 lg:w-56 xl:w-64 drop-shadow-2xl"
+          priority
+        />
       </div>
 
       {/* Content */}
