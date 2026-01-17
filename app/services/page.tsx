@@ -1,6 +1,6 @@
 import { Car, Truck, Fuel, ParkingSquare, Phone, CheckCircle } from "lucide-react";
 import Link from "next/link";
-import { SERVICES, CTA_CTA_PHONE_NUMBER, CTA_CTA_PHONE_DISPLAY } from "@/data/constants";
+import { SERVICES, CTA_PHONE_NUMBER, CTA_PHONE_DISPLAY } from "@/data/constants";
 
 const iconMap = {
   Car: Car,
