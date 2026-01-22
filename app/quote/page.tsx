@@ -1,55 +1,32 @@
 "use client";
 
-import { useState } from "react";
+import { useFormState, useFormStatus } from "react-dom";
 import { Phone, CheckCircle, Truck } from "lucide-react";
-import { supabase } from "@/lib/supabase";
+import { submitQuote, type QuoteFormState } from "@/actions/quote";
 import { PHONE_NUMBER, PHONE_DISPLAY, SERVICES } from "@/data/constants";
 
+const initialState: QuoteFormState = { success: false };
+
+function SubmitButton() {
+  const { pending } = useFormStatus();
+  return (
+    <button
+      type="submit"
+      disabled={pending}
+      className="w-full flex items-center justify-center gap-2 bg-brand-orange hover:bg-safety-orange text-black font-bold py-4 px-8 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+    >
+      {pending ? "Submitting..." : "Request Free Quote"}
+    </button>
+  );
+}
+
+function FieldError({ errors }: { errors?: string[] }) {
+  if (!errors || errors.length === 0) return null;
+  return <p className="text-red-500 text-sm mt-1">{errors[0]}</p>;
+}
+
 export default function QuotePage() {
-  const [formData, setFormData] = useState({
-    name: "",
-    phone: "",
-    email: "",
-    service_type: "",
-    vehicle_info: "",
-    pickup_location: "",
-    dropoff_location: "",
-    notes: "",
-  });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
-  const [error, setError] = useState("");
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    setError("");
-
-    try {
-      const { error: supabaseError } = await supabase
-        .from("quote_requests")
-        .insert([formData]);
-
-      if (supabaseError) throw supabaseError;
-
-      setIsSuccess(true);
-      setFormData({
-        name: "",
-        phone: "",
-        email: "",
-        service_type: "",
-        vehicle_info: "",
-        pickup_location: "",
-        dropoff_location: "",
-        notes: "",
-      });
-    } catch (err) {
-      setError("Something went wrong. Please call us directly.");
-      console.error(err);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+  const [state, formAction] = useFormState(submitQuote, initialState);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -85,7 +62,7 @@ export default function QuotePage() {
                 {PHONE_DISPLAY}
               </a>
               <p className="text-center mt-4 text-sm opacity-70">
-                🇺🇸 English / 🇲🇽 Español
+                English / Espanol
               </p>
             </div>
           </div>
@@ -93,7 +70,7 @@ export default function QuotePage() {
           {/* Quote Form */}
           <div className="lg:col-span-2">
             <div className="bg-white p-8 rounded-xl shadow-lg">
-              {isSuccess ? (
+              {state.success ? (
                 <div className="text-center py-12">
                   <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
                   <h3 className="text-2xl font-bold text-brand-black mb-2">
@@ -103,19 +80,19 @@ export default function QuotePage() {
                     We&apos;ll review your request and contact you shortly with a
                     quote.
                   </p>
-                  <button
-                    onClick={() => setIsSuccess(false)}
+                  <a
+                    href="/quote"
                     className="text-brand-orange font-semibold hover:underline"
                   >
                     Request another quote
-                  </button>
+                  </a>
                 </div>
               ) : (
                 <>
                   <h2 className="text-2xl font-bold text-brand-black mb-6">
                     Quote Request Form
                   </h2>
-                  <form onSubmit={handleSubmit} className="space-y-6">
+                  <form action={formAction} className="space-y-6">
                     {/* Contact Info Row */}
                     <div className="grid md:grid-cols-2 gap-6">
                       <div>
@@ -124,14 +101,12 @@ export default function QuotePage() {
                         </label>
                         <input
                           type="text"
+                          name="name"
                           required
-                          value={formData.name}
-                          onChange={(e) =>
-                            setFormData({ ...formData, name: e.target.value })
-                          }
                           className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-orange focus:border-transparent"
                           placeholder="John Doe"
                         />
+                        <FieldError errors={state.fieldErrors?.name} />
                       </div>
 
                       <div>
@@ -140,14 +115,12 @@ export default function QuotePage() {
                         </label>
                         <input
                           type="tel"
+                          name="phone"
                           required
-                          value={formData.phone}
-                          onChange={(e) =>
-                            setFormData({ ...formData, phone: e.target.value })
-                          }
                           className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-orange focus:border-transparent"
                           placeholder="(555) 555-5555"
                         />
+                        <FieldError errors={state.fieldErrors?.phone} />
                       </div>
                     </div>
 
@@ -157,13 +130,11 @@ export default function QuotePage() {
                       </label>
                       <input
                         type="email"
-                        value={formData.email}
-                        onChange={(e) =>
-                          setFormData({ ...formData, email: e.target.value })
-                        }
+                        name="email"
                         className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-orange focus:border-transparent"
                         placeholder="john@example.com"
                       />
+                      <FieldError errors={state.fieldErrors?.email} />
                     </div>
 
                     {/* Service Type */}
@@ -172,14 +143,8 @@ export default function QuotePage() {
                         Service Type *
                       </label>
                       <select
+                        name="service_type"
                         required
-                        value={formData.service_type}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            service_type: e.target.value,
-                          })
-                        }
                         className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-orange focus:border-transparent"
                       >
                         <option value="">Select a service...</option>
@@ -189,6 +154,7 @@ export default function QuotePage() {
                           </option>
                         ))}
                       </select>
+                      <FieldError errors={state.fieldErrors?.service_type} />
                     </div>
 
                     {/* Vehicle Info */}
@@ -198,17 +164,12 @@ export default function QuotePage() {
                       </label>
                       <input
                         type="text"
+                        name="vehicle_info"
                         required
-                        value={formData.vehicle_info}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            vehicle_info: e.target.value,
-                          })
-                        }
                         className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-orange focus:border-transparent"
                         placeholder="Year, Make, Model (e.g., 2020 Honda Accord)"
                       />
+                      <FieldError errors={state.fieldErrors?.vehicle_info} />
                     </div>
 
                     {/* Locations Row */}
@@ -219,17 +180,12 @@ export default function QuotePage() {
                         </label>
                         <input
                           type="text"
+                          name="pickup_location"
                           required
-                          value={formData.pickup_location}
-                          onChange={(e) =>
-                            setFormData({
-                              ...formData,
-                              pickup_location: e.target.value,
-                            })
-                          }
                           className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-orange focus:border-transparent"
                           placeholder="Address or intersection"
                         />
+                        <FieldError errors={state.fieldErrors?.pickup_location} />
                       </div>
 
                       <div>
@@ -238,16 +194,11 @@ export default function QuotePage() {
                         </label>
                         <input
                           type="text"
-                          value={formData.dropoff_location}
-                          onChange={(e) =>
-                            setFormData({
-                              ...formData,
-                              dropoff_location: e.target.value,
-                            })
-                          }
+                          name="dropoff_location"
                           className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-orange focus:border-transparent"
                           placeholder="Destination address"
                         />
+                        <FieldError errors={state.fieldErrors?.dropoff_location} />
                       </div>
                     </div>
 
@@ -257,25 +208,19 @@ export default function QuotePage() {
                         Additional Notes
                       </label>
                       <textarea
+                        name="notes"
                         rows={3}
-                        value={formData.notes}
-                        onChange={(e) =>
-                          setFormData({ ...formData, notes: e.target.value })
-                        }
                         className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-orange focus:border-transparent resize-none"
                         placeholder="Any additional details (e.g., vehicle condition, special requirements)"
                       />
+                      <FieldError errors={state.fieldErrors?.notes} />
                     </div>
 
-                    {error && <p className="text-red-500 text-sm">{error}</p>}
+                    {state.error && (
+                      <p className="text-red-500 text-sm">{state.error}</p>
+                    )}
 
-                    <button
-                      type="submit"
-                      disabled={isSubmitting}
-                      className="w-full flex items-center justify-center gap-2 bg-brand-orange hover:bg-safety-orange text-black font-bold py-4 px-8 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {isSubmitting ? "Submitting..." : "Request Free Quote"}
-                    </button>
+                    <SubmitButton />
                   </form>
                 </>
               )}

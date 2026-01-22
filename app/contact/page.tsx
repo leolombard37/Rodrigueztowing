@@ -1,42 +1,39 @@
 "use client";
 
-import { useState } from "react";
+import { useFormState, useFormStatus } from "react-dom";
 import { Phone, Mail, MapPin, Send, CheckCircle } from "lucide-react";
-import { supabase } from "@/lib/supabase";
+import { submitContact, type ContactFormState } from "@/actions/contact";
 import { PHONE_NUMBER, PHONE_DISPLAY } from "@/data/constants";
 
+const initialState: ContactFormState = { success: false };
+
+function SubmitButton() {
+  const { pending } = useFormStatus();
+  return (
+    <button
+      type="submit"
+      disabled={pending}
+      className="w-full flex items-center justify-center gap-2 bg-brand-orange hover:bg-safety-orange text-black font-bold py-4 px-8 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+    >
+      {pending ? (
+        "Sending..."
+      ) : (
+        <>
+          <Send className="w-5 h-5" />
+          Send Message
+        </>
+      )}
+    </button>
+  );
+}
+
+function FieldError({ errors }: { errors?: string[] }) {
+  if (!errors || errors.length === 0) return null;
+  return <p className="text-red-500 text-sm mt-1">{errors[0]}</p>;
+}
+
 export default function ContactPage() {
-  const [formData, setFormData] = useState({
-    name: "",
-    phone: "",
-    email: "",
-    message: "",
-  });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
-  const [error, setError] = useState("");
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    setError("");
-
-    try {
-      const { error: supabaseError } = await supabase
-        .from("contacts")
-        .insert([formData]);
-
-      if (supabaseError) throw supabaseError;
-
-      setIsSuccess(true);
-      setFormData({ name: "", phone: "", email: "", message: "" });
-    } catch (err) {
-      setError("Something went wrong. Please call us directly.");
-      console.error(err);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+  const [state, formAction] = useFormState(submitContact, initialState);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -108,13 +105,13 @@ export default function ContactPage() {
             {/* Languages */}
             <div className="mt-8 p-4 bg-white border border-gray-200 rounded-lg">
               <p className="text-sm text-gray-500 mb-2">We speak:</p>
-              <p className="font-semibold">🇺🇸 English / 🇲🇽 Español</p>
+              <p className="font-semibold">English / Espanol</p>
             </div>
           </div>
 
           {/* Contact Form */}
           <div className="bg-white p-8 rounded-xl shadow-lg">
-            {isSuccess ? (
+            {state.success ? (
               <div className="text-center py-12">
                 <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
                 <h3 className="text-2xl font-bold text-brand-black mb-2">
@@ -123,33 +120,31 @@ export default function ContactPage() {
                 <p className="text-gray-600 mb-6">
                   We&apos;ll get back to you as soon as possible.
                 </p>
-                <button
-                  onClick={() => setIsSuccess(false)}
+                <a
+                  href="/contact"
                   className="text-brand-orange font-semibold hover:underline"
                 >
                   Send another message
-                </button>
+                </a>
               </div>
             ) : (
               <>
                 <h2 className="text-2xl font-bold text-brand-black mb-6">
                   Send a Message
                 </h2>
-                <form onSubmit={handleSubmit} className="space-y-6">
+                <form action={formAction} className="space-y-6">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Your Name *
                     </label>
                     <input
                       type="text"
+                      name="name"
                       required
-                      value={formData.name}
-                      onChange={(e) =>
-                        setFormData({ ...formData, name: e.target.value })
-                      }
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-orange focus:border-transparent"
                       placeholder="John Doe"
                     />
+                    <FieldError errors={state.fieldErrors?.name} />
                   </div>
 
                   <div>
@@ -158,14 +153,12 @@ export default function ContactPage() {
                     </label>
                     <input
                       type="tel"
+                      name="phone"
                       required
-                      value={formData.phone}
-                      onChange={(e) =>
-                        setFormData({ ...formData, phone: e.target.value })
-                      }
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-orange focus:border-transparent"
                       placeholder="(555) 555-5555"
                     />
+                    <FieldError errors={state.fieldErrors?.phone} />
                   </div>
 
                   <div>
@@ -174,13 +167,11 @@ export default function ContactPage() {
                     </label>
                     <input
                       type="email"
-                      value={formData.email}
-                      onChange={(e) =>
-                        setFormData({ ...formData, email: e.target.value })
-                      }
+                      name="email"
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-orange focus:border-transparent"
                       placeholder="john@example.com"
                     />
+                    <FieldError errors={state.fieldErrors?.email} />
                   </div>
 
                   <div>
@@ -188,35 +179,20 @@ export default function ContactPage() {
                       Message *
                     </label>
                     <textarea
+                      name="message"
                       required
                       rows={4}
-                      value={formData.message}
-                      onChange={(e) =>
-                        setFormData({ ...formData, message: e.target.value })
-                      }
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-orange focus:border-transparent resize-none"
                       placeholder="How can we help you?"
                     />
+                    <FieldError errors={state.fieldErrors?.message} />
                   </div>
 
-                  {error && (
-                    <p className="text-red-500 text-sm">{error}</p>
+                  {state.error && (
+                    <p className="text-red-500 text-sm">{state.error}</p>
                   )}
 
-                  <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="w-full flex items-center justify-center gap-2 bg-brand-orange hover:bg-safety-orange text-black font-bold py-4 px-8 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {isSubmitting ? (
-                      "Sending..."
-                    ) : (
-                      <>
-                        <Send className="w-5 h-5" />
-                        Send Message
-                      </>
-                    )}
-                  </button>
+                  <SubmitButton />
                 </form>
               </>
             )}
