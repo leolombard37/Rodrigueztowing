@@ -1,15 +1,11 @@
 "use server";
 
-import { headers } from "next/headers";
-import { createServerClient } from "@/lib/supabase-server";
-import { ContactSchema, type ContactFormData } from "@/lib/validations/contact";
-import { rateLimit } from "@/lib/rate-limit";
-import { handleContactNotification } from "@/lib/notifications";
+import { createSimpleClient } from "@/lib/supabase-server";
 
 export type ContactFormState = {
   success: boolean;
   error?: string;
-  fieldErrors?: Partial<Record<keyof ContactFormData, string[]>>;
+  fieldErrors?: Partial<Record<string, string[]>>;
 };
 
 export async function submitContact(
@@ -17,55 +13,28 @@ export async function submitContact(
   formData: FormData
 ): Promise<ContactFormState> {
   try {
-    // Rate limiting
-    const headersList = headers();
-    const ip = rateLimit.getClientIP(headersList);
-    const { success: withinLimit } = await rateLimit.check(ip, 5, "1m");
-
-    if (!withinLimit) {
-      return {
-        success: false,
-        error: "Too many requests. Please wait a moment and try again.",
-      };
-    }
-
     // Extract form data
-    const rawData = {
-      name: formData.get("name") as string,
-      phone: formData.get("phone") as string,
-      email: formData.get("email") as string,
-      message: formData.get("message") as string,
-    };
+    const name = formData.get("name") as string;
+    const phone = formData.get("phone") as string;
+    const email = formData.get("email") as string;
+    const message = formData.get("message") as string;
 
-    // Validate with Zod
-    const validated = ContactSchema.safeParse(rawData);
-
-    if (!validated.success) {
-      const fieldErrors: Partial<Record<keyof ContactFormData, string[]>> = {};
-      for (const issue of validated.error.issues) {
-        const field = issue.path[0] as keyof ContactFormData;
-        if (!fieldErrors[field]) {
-          fieldErrors[field] = [];
-        }
-        fieldErrors[field]!.push(issue.message);
-      }
-
+    // Basic validation
+    if (!name || !phone || !message) {
       return {
         success: false,
-        fieldErrors,
+        error: "Please fill in all required fields.",
       };
     }
 
-    // Insert into database
-    const supabase = createServerClient();
-    const { error: dbError } = await supabase.from("contacts").insert([
-      {
-        name: validated.data.name,
-        phone: validated.data.phone,
-        email: validated.data.email || null,
-        message: validated.data.message,
-      },
-    ]);
+    // Insert into database using RPC function (bypasses RLS)
+    const supabase = createSimpleClient();
+    const { error: dbError } = await supabase.rpc("submit_contact", {
+      p_name: name,
+      p_phone: phone,
+      p_email: email || null,
+      p_message: message,
+    });
 
     if (dbError) {
       console.error("Contact submission error:", dbError);
@@ -74,14 +43,6 @@ export async function submitContact(
         error: "Something went wrong. Please call us directly.",
       };
     }
-
-    // Send notifications (non-blocking - don't wait for completion)
-    handleContactNotification({
-      name: validated.data.name,
-      phone: validated.data.phone,
-      email: validated.data.email || null,
-      message: validated.data.message,
-    }).catch((err) => console.error("Notification error:", err));
 
     return { success: true };
   } catch (error) {

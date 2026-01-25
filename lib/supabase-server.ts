@@ -1,6 +1,16 @@
+import { createClient } from "@supabase/supabase-js";
 import { createServerClient as createSSRClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 
+// Simple client for anonymous operations (form submissions)
+export function createSimpleClient() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+}
+
+// Full SSR client with cookies (for authenticated operations)
 export function createServerClient() {
   const cookieStore = cookies();
 

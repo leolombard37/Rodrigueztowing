@@ -1,15 +1,11 @@
 "use server";
 
-import { headers } from "next/headers";
-import { createServerClient } from "@/lib/supabase-server";
-import { QuoteSchema, type QuoteFormData } from "@/lib/validations/quote";
-import { rateLimit } from "@/lib/rate-limit";
-import { handleQuoteNotification } from "@/lib/notifications";
+import { createSimpleClient } from "@/lib/supabase-server";
 
 export type QuoteFormState = {
   success: boolean;
   error?: string;
-  fieldErrors?: Partial<Record<keyof QuoteFormData, string[]>>;
+  fieldErrors?: Partial<Record<string, string[]>>;
 };
 
 export async function submitQuote(
@@ -17,64 +13,37 @@ export async function submitQuote(
   formData: FormData
 ): Promise<QuoteFormState> {
   try {
-    // Rate limiting
-    const headersList = headers();
-    const ip = rateLimit.getClientIP(headersList);
-    const { success: withinLimit } = await rateLimit.check(ip, 5, "1m");
-
-    if (!withinLimit) {
-      return {
-        success: false,
-        error: "Too many requests. Please wait a moment and try again.",
-      };
-    }
-
     // Extract form data
-    const rawData = {
-      name: formData.get("name") as string,
-      phone: formData.get("phone") as string,
-      email: formData.get("email") as string,
-      service_type: formData.get("service_type") as string,
-      vehicle_info: formData.get("vehicle_info") as string,
-      pickup_location: formData.get("pickup_location") as string,
-      dropoff_location: formData.get("dropoff_location") as string,
-      notes: formData.get("notes") as string,
-    };
+    const name = formData.get("name") as string;
+    const phone = formData.get("phone") as string;
+    const email = formData.get("email") as string;
+    const service_type = formData.get("service_type") as string;
+    const vehicle_info = formData.get("vehicle_info") as string;
+    const pickup_location = formData.get("pickup_location") as string;
+    const dropoff_location = formData.get("dropoff_location") as string;
+    const notes = formData.get("notes") as string;
 
-    // Validate with Zod
-    const validated = QuoteSchema.safeParse(rawData);
-
-    if (!validated.success) {
-      const fieldErrors: Partial<Record<keyof QuoteFormData, string[]>> = {};
-      for (const issue of validated.error.issues) {
-        const field = issue.path[0] as keyof QuoteFormData;
-        if (!fieldErrors[field]) {
-          fieldErrors[field] = [];
-        }
-        fieldErrors[field]!.push(issue.message);
-      }
-
+    // Basic validation
+    if (!name || !phone || !service_type || !vehicle_info || !pickup_location) {
       return {
         success: false,
-        fieldErrors,
+        error: "Please fill in all required fields.",
       };
     }
 
-    // Insert into database
-    const supabase = createServerClient();
-    const { error: dbError } = await supabase.from("quote_requests").insert([
-      {
-        name: validated.data.name,
-        phone: validated.data.phone,
-        email: validated.data.email || null,
-        service_type: validated.data.service_type,
-        vehicle_info: validated.data.vehicle_info,
-        pickup_location: validated.data.pickup_location,
-        dropoff_location: validated.data.dropoff_location || null,
-        notes: validated.data.notes || null,
-        status: "pending",
-      },
-    ]);
+    // Insert into database using RPC function (bypasses RLS)
+    const supabase = createSimpleClient();
+    const { error: dbError } = await supabase.rpc("submit_quote", {
+      p_name: name,
+      p_phone: phone,
+      p_email: email || null,
+      p_service_type: service_type,
+      p_vehicle_info: vehicle_info,
+      p_pickup_location: pickup_location,
+      p_dropoff_location: dropoff_location || null,
+      p_notes: notes || null,
+      p_is_urgent: false,
+    });
 
     if (dbError) {
       console.error("Quote submission error:", dbError);
@@ -83,19 +52,6 @@ export async function submitQuote(
         error: "Something went wrong. Please call us directly.",
       };
     }
-
-    // Send notifications (non-blocking - don't wait for completion)
-    // Urgent requests (roadside assistance) will automatically trigger SMS
-    handleQuoteNotification({
-      name: validated.data.name,
-      phone: validated.data.phone,
-      email: validated.data.email || null,
-      service_type: validated.data.service_type,
-      vehicle_info: validated.data.vehicle_info,
-      pickup_location: validated.data.pickup_location,
-      dropoff_location: validated.data.dropoff_location || null,
-      notes: validated.data.notes || null,
-    }).catch((err) => console.error("Notification error:", err));
 
     return { success: true };
   } catch (error) {
