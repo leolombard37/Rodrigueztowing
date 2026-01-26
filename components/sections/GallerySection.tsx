@@ -1,35 +1,15 @@
-import Image from "next/image";
-
-const galleryImages = [
+const galleryVideos = [
   {
-    src: "/images/gallery/gallery-1.jpg",
-    alt: "Light duty towing service",
-    title: "Light Duty Towing",
+    src: "/videos/video-1.mp4",
+    title: "Towing Service in Action",
   },
   {
-    src: "/images/gallery/gallery-2.jpg",
-    alt: "Heavy duty towing service",
-    title: "Heavy Duty Towing",
+    src: "/videos/video-2.mp4",
+    title: "Professional Recovery",
   },
   {
-    src: "/images/gallery/gallery-3.jpg",
-    alt: "Roadside assistance",
+    src: "/videos/video-3.mp4",
     title: "Roadside Assistance",
-  },
-  {
-    src: "/images/gallery/gallery-4.jpg",
-    alt: "Flatbed towing",
-    title: "Flatbed Towing",
-  },
-  {
-    src: "/images/gallery/gallery-5.jpg",
-    alt: "Emergency towing",
-    title: "Emergency Towing",
-  },
-  {
-    src: "/images/gallery/gallery-6.jpg",
-    alt: "Commercial towing",
-    title: "Commercial Towing",
   },
 ];
 
@@ -48,26 +28,26 @@ export default function GallerySection() {
           </p>
         </div>
 
-        {/* Gallery Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {galleryImages.map((image, index) => (
+        {/* Video Gallery Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {galleryVideos.map((video, index) => (
             <div
               key={index}
               className="relative group overflow-hidden rounded-xl shadow-md hover:shadow-xl transition-shadow"
             >
-              <div className="aspect-[4/3] relative">
-                <Image
-                  src={image.src}
-                  alt={image.alt}
-                  fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-300"
+              <div className="aspect-[4/3] relative bg-black">
+                <video
+                  src={video.src}
+                  className="w-full h-full object-cover"
+                  controls
+                  muted
+                  playsInline
+                  preload="metadata"
                 />
               </div>
-              {/* Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <div className="absolute bottom-0 left-0 right-0 p-4">
-                  <h3 className="text-white font-bold text-lg">{image.title}</h3>
-                </div>
+              {/* Title */}
+              <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/70 to-transparent pointer-events-none">
+                <h3 className="text-white font-bold text-lg">{video.title}</h3>
               </div>
             </div>
           ))}

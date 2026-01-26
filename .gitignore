@@ -62,3 +62,6 @@ next-env.d.ts
 *.seed
 *.pid.lock
 .vercel
+
+# Credentials (never commit)
+CREDENTIALS.txt
