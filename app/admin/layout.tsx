@@ -1,7 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import Sidebar from "@/components/admin/Sidebar";
+import AdminLayoutClient from "@/components/admin/AdminLayoutClient";
 
 export const metadata = {
   title: "Admin Dashboard | Rodriguez Towing",
@@ -35,12 +35,5 @@ export default async function AdminLayout({
     redirect("/login");
   }
 
-  return (
-    <div className="flex min-h-screen bg-gray-100">
-      <Sidebar />
-      <main className="flex-1 overflow-auto">
-        <div className="p-8">{children}</div>
-      </main>
-    </div>
-  );
+  return <AdminLayoutClient>{children}</AdminLayoutClient>;
 }

@@ -97,25 +97,27 @@ export default function QuotesTable({ initialQuotes }: QuotesTableProps) {
   return (
     <div className="bg-white rounded-xl shadow-sm">
       {/* Filters */}
-      <div className="p-4 border-b border-gray-100 flex gap-2">
-        {["all", "pending", "contacted", "completed"].map((f) => (
-          <button
-            key={f}
-            onClick={() => setFilter(f)}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-              filter === f
-                ? "bg-brand-orange text-black"
-                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-            }`}
-          >
-            {f.charAt(0).toUpperCase() + f.slice(1)}
-            {f !== "all" && (
-              <span className="ml-2 text-xs">
-                ({quotes.filter((q) => q.status === f).length})
-              </span>
-            )}
-          </button>
-        ))}
+      <div className="p-4 border-b border-gray-100 overflow-x-auto">
+        <div className="flex gap-2 min-w-max">
+          {["all", "pending", "contacted", "completed"].map((f) => (
+            <button
+              key={f}
+              onClick={() => setFilter(f)}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${
+                filter === f
+                  ? "bg-brand-orange text-black"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+              }`}
+            >
+              {f.charAt(0).toUpperCase() + f.slice(1)}
+              {f !== "all" && (
+                <span className="ml-2 text-xs">
+                  ({quotes.filter((q) => q.status === f).length})
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Table */}

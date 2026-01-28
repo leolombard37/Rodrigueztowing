@@ -36,9 +36,9 @@ export default async function ReviewsPage() {
   return (
     <div>
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Reviews</h1>
-        <p className="text-gray-500 mt-1">
+      <div className="mb-6 md:mb-8">
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Reviews</h1>
+        <p className="text-gray-500 mt-1 text-sm md:text-base">
           Approve or reject customer reviews.
         </p>
       </div>
