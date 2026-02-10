@@ -17,6 +17,16 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Hero background video — prevent iOS fullscreen & ensure cover behavior */
+.hero-video {
+  -webkit-playsinline: true;
+  object-fit: cover;
+}
+
+.hero-video::-webkit-media-controls {
+  display: none !important;
+}
+
 /* High contrast focus states for accessibility */
 a:focus-visible,
 button:focus-visible {

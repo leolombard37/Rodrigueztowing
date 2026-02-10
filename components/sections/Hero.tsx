@@ -5,13 +5,23 @@ import { CTA_PHONE_NUMBER } from "@/data/constants";
 export default function Hero() {
   return (
     <section className="relative min-h-[600px] md:min-h-[700px] flex items-center">
-      {/* Background Image */}
-      <div
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{
-          backgroundImage: "url('/images/hero.jpg')",
-        }}
-      >
+      {/* Background Video */}
+      <div className="absolute inset-0 overflow-hidden">
+        {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          preload="metadata"
+          poster="/images/hero-poster.jpg"
+          disablePictureInPicture
+          disableRemotePlayback
+          aria-hidden="true"
+          className="hero-video absolute inset-0 w-full h-full object-cover"
+        >
+          <source src="/videos/hero.mp4" type="video/mp4" />
+        </video>
         <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/75 to-black/60" />
       </div>
 
